@@ -1,8 +1,14 @@
-# 1) Ensure uv is on PATH
-export PATH="$HOME/.local/bin:$PATH"
+#!/usr/bin/env bash
+set -euo pipefail
 
-# 2) Change into your project directory
-cd /home/jana/Documents/CollectorDiscord/knowledgecollector || exit 1
+# 1) Change into your project directory (one quoted arg only!)
+cd "/home/jana/Documents/CollectorDiscord/knowledgecollector" || exit 1
 
-# 3) Run the fetcher (50 = number of messages to pull each time)
-uv run -m src.discord.main 50 >> discord_fetch.log 2>&1
+# 2) Load environment variables, if you have an .env file
+if [ -f ".env" ]; then
+  source .env
+fi
+
+# 3) Run the collector (no additional args means full paging loop)
+#    Make sure `which uv` prints /home/jana/.local/bin/uv (or adjust as needed)
+"/home/jana/.local/bin/uv" run -m src.discord.main

@@ -9,17 +9,19 @@ A minimal Python application that fetches messages and attachments from a specif
 ```plaintext
 knowledgecollector-discord/
 ├── .env.example              # Example environment variables
-├── fetch_discord.sh          # Shell wrapper for cron jobs
+├── fetch_discord.sh          # Shell wrapper for cron jobs (15-minute collector)
+├── send_heartbeat.sh         # Shell wrapper for cron jobs (1-minute heartbeat)
 ├── discord_fetch.log         # Log of fetch script runs
+├── heartbeat.log             # Log of heartbeat runs
+├── last_message_id.txt       # Tracks last-seen Discord message ID
 ├── Dockerfile                # Optional Docker build
 ├── pyproject.toml            # Project dependencies and metadata
-├── README.md                 # This documentation
 └── src/
     └── discord/
         ├── __init__.py       # Package initializer (can be empty)
         ├── config.py         # Loads DISCORD_BOT_TOKEN & DISCORD_CHANNEL_ID
         ├── discord_api.py    # HTTP client to fetch Discord messages
-        └── main.py           # Fetch & write JSON once
+        └── main.py           # Fetch & write JSON once, with incremental paging
 ```  
 
 ---
@@ -86,7 +88,7 @@ You have two options for the bot:
    ```bash
    uv run -m src.discord.main 20
    ```
-   - Fetches the last 20 messages and prints them.  
+   - Fetches 20 messages and prints them.  
    - Writes a file named `<epoch_ms>.json` in the project root.
 
 ---
@@ -105,7 +107,7 @@ uv run -m src.discord.main 20
 
 Each invocation creates a timestamped `<epoch_ms>.json` file in the project root.  
 
-## Docker (Optional) (Optional)
+## Docker (Optional)
 
 1. **Build the image**
    ```bash
@@ -135,9 +137,19 @@ Each invocation creates a timestamped `<epoch_ms>.json` file in the project root
 
 3. **Add your cron job** (e.g., every 15 minutes)
    ```cron
-   */15 * * * * /path to repository/fetch_discord.sh
+      SHELL=/bin/bash
+      PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+      # every minute heartbeat
+      #* * * * * cd /path/knowledgecollector && ./send_heartbeat.sh >> he>
+
+      # every 15 minutes full-fetch
+      #*/15 * * * * cd /path/knowledgecollector && ./fetch_discord.sh >> d>
+
    ```
+   - Add tihs at the end of the text.
    - Adjust the path to match your local setup.  
+   - If you want cron job to stop comment this lines with #.
 
 4. **Verify your job**
    ```bash

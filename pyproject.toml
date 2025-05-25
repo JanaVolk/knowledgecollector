@@ -7,8 +7,9 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.115.11",
     "pydantic>=2.10.6",
-    "httpx>=0.25.0",         # HTTP client for Discord REST calls
-    "python-dotenv>=1.0.0",  # load your .env variables
+    "httpx>=0.25.0", # HTTP client for Discord REST calls
+    "python-dotenv>=1.0.0", # load your .env variables
+    "discord-py>=2.5.2",
 ]
 
 [dependency-groups]
